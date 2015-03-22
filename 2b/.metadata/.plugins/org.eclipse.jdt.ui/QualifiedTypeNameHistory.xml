@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="evaluation.Tuple"/>
+<fullyQualifiedTypeName name="closestPair.PointSet"/>
+<fullyQualifiedTypeName name="closestPair.ISolution"/>
+<fullyQualifiedTypeName name="closestPair.InsufficientNumberOfPointsException"/>
+<fullyQualifiedTypeName name="closestPair.NaiveSolution"/>
+</qualifiedTypeNameHistroy>

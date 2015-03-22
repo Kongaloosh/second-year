@@ -1,0 +1,35 @@
+#!/bin/bash
+
+files=("report/plot.png" "report/performance.txt" "report/ratios.txt" "report/summary.txt" "report/log.txt" "src/closestPair/StudentSolution.java")
+ansdir="ADSanswer"
+declare -i errors=0
+
+if [ -d "$ansdir" ]; then
+    read -r -p "$ansdir folder exists, do you want delete it [y/N]?" ifdel
+    if [[ "$ifdel" != "y" ]]; then
+        echo "Aborting..."
+        exit
+    fi
+    echo "Answer directory exists, flushing it..."
+    rm -rf "$ansdir"
+fi
+
+echo -e "Creating $ansdir directory and copying files...\n"
+mkdir "$ansdir"
+
+for f in "${files[@]}"; do
+    if [ -f $f ]; then
+        echo "Copying $f to $ansdir..."
+        cp "$f" "$ansdir"
+    else
+        echo "[Error] File $f is missing!"
+        errors=errors+1
+    fi
+done
+
+if [ $errors = 0 ]; then
+    echo -e "\nDone, your submit directory was prepared in $ansdir."
+else
+    echo -e "\nEncountered $errors when creating answer directory in $ansdir."
+    echo "Check error messages, resolve problems, and try again."
+fi

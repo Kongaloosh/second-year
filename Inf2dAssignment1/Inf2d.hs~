@@ -1,0 +1,236 @@
+-- Inf2d Assignment 1 2013-14 
+-- Matriculation number: 
+
+module Inf2d where
+
+import Data.List
+import Data.Maybe
+import CSPframework
+import Examples
+
+{- NOTES:
+
+-- DO NOT CHANGE THE NAMES OR TYPE DEFINITIONS OF THE FUNCTIONS!
+You can write new auxillary functions, but don't change the names or type definitions 
+of the functions which you are asked to implement.
+
+-- Comment your code.
+
+-- You should submit this file, and only this file, when you have finished the assignment.
+
+-- The deadline is: 3rd of March 2014, 4pm.
+
+-- See the reference manual for more information on the datatypes and functions of the framework.
+
+-- See www.haskell.org for haskell revision.
+
+-- Useful haskell topics, which you should revise:
+-- Recursion
+-- The Maybe monad
+-- Higher-order functions
+-- List processing functions: map, foldl, filter, sortBy etc.
+
+-}
+
+-------------------------------------------------
+-- (3) Sudoku problem
+-------------------------------------------------
+
+-- (3.i) Variables & values
+
+queenVars :: Int -> [Var]
+queenVars = undefined
+
+queenDomains :: Int -> Domains
+queenDomains = undefined 
+
+
+-- (3.ii) Constraints
+
+diagonalRelation :: Relation
+diagonalRelation = undefined
+
+
+
+-- Binary constraint stating that two variables differ by exactly n.
+diagonalConstraint :: Var -> Var -> Constraint
+diagonalConstraint a b = CT (a ++ " and " ++ b ++ " not in the same diagonal",[a,b],diagonalRelation)
+
+
+
+-- (3.iii) N-Queens CSP
+
+queenCsp :: Int -> CSP
+queenCsp n = CSP ((show n) ++ "-Queens Problem",
+             queenDomains n, [
+		{- Insert your list of constraints here! -}
+               ])
+
+
+
+-------------------------------------------------
+-- (4.1) Forward Checking
+-------------------------------------------------
+
+-- (4.1.i) Forward check for infernce:
+
+forwardcheck :: CSP -> Assignment -> Var -> (CSP, Bool)
+forwardcheck = undefined
+
+        
+-- (4.1.ii) Algorithm: 
+
+fcRecursion :: CSP -> Assignment -> (Maybe Assignment, Int)
+fcRecursion = undefined
+
+
+
+fc :: CSP -> (Maybe Assignment,Int)
+fc csp = fcRecursion csp []
+
+
+-------------------------------------------------
+-- (4.2) Minimum Remaining Values (MRV)
+-------------------------------------------------
+
+-- (4.2.i) Sorting function for variables based on the MRV heuristic:
+
+mrvCompare :: CSP -> Var -> Var -> Ordering
+mrvCompare = undefined
+
+
+-- (4.2.ii) Get next variable according to MRV for the FC algorithm:
+
+getMRVVariable :: Assignment -> CSP -> Var
+getMRVVariable = undefined
+
+
+-- (4.2.iii) FC + MRV algorithm
+
+fcMRVRecursion :: CSP -> Assignment -> (Maybe Assignment, Int)
+fcMRVRecursion = undefined
+
+
+
+fcMRV :: CSP -> (Maybe Assignment,Int)
+fcMRV csp = fcMRVRecursion csp []
+
+
+-------------------------------------------------
+-- (4.3) Least Constraining Value (LCV)
+-------------------------------------------------
+
+-- (4.3.i) Function that returns the number of choices available for all neighbours
+--         of a variable:
+
+numChoices :: CSP -> Assignment -> Var -> Int
+numChoices = undefined
+
+
+-- (4.3.ii) Function that sorts the domain of a variable based on the LCV heuristic.
+
+lcvSort :: CSP -> Assignment -> Var -> [Int]
+lcvSort = undefined
+
+
+-- (4.3.iii) FC + LCV algorithm
+
+fcLCVRecursion :: CSP -> Assignment -> (Maybe Assignment, Int)
+fcLCVRecursion = undefined
+
+
+
+fcLCV :: CSP -> (Maybe Assignment,Int)
+fcLCV = undefined
+
+
+
+-- (4.3.iv) FC + MRV + LCV algorithm
+
+fcMRV_LCVRecursion :: CSP -> Assignment -> (Maybe Assignment, Int)
+fcMRV_LCVRecursion = undefined
+
+
+
+fcMRV_LCV :: CSP -> (Maybe Assignment,Int)
+fcMRV_LCV csp = fcMRV_LCVRecursion csp []
+
+
+
+
+-------------------------------------------------
+-- (5) Evaluation
+-------------------------------------------------
+{-
+  (5.ii) Table:
+
+----------+--------+--------+--------+---------+----------+---------+-----------+
+          |   BT   |   FC   | FC+MRV | FC+LCV  |FC+MRV+LCV|   AC3   |AC3+MRV+LCV|
+----------+--------+--------+--------+---------+----------+---------+-----------+
+ausCsp    |        |        |        |         |          |         |           |
+mapCsp    |        |        |        |         |          |         |           |
+ms3x3Csp  |        |        |        |         |          |xxxxxxxxx|xxxxxxxxxxx|
+8-Queens  |        |        |        |         |          |         |           |
+12-Queens |        |        |        |         |          |         |           |
+----------+--------+--------+--------+---------+----------+---------+-----------+
+
+  (5.iii - 5.iv) Report:
+
+- Your report must be no longer than one A4 page for the first four algorithms
+  and another maximum half page for AC3 and AC3+MRV+LCV.
+- Write your report starting here. -
+-------------------------------------------------
+
+
+
+
+-------------------------------------------------
+- End of report-
+-}
+
+
+-------------------------------------------------
+-- (6) Arc Consistency
+-------------------------------------------------
+
+
+-- (6.i) Checks if there exists at least one value in a list of values that if 
+-- assigned to the given variable the assignment will be consistent.
+
+existsConsistentValue :: CSP -> Var -> Int -> Var -> [Int] -> Bool
+existsConsistentValue = undefined
+
+
+-- (6.ii) AC-3 constraint propagation
+
+revise :: CSP -> Var -> Var -> (CSP,Bool)
+revise = undefined
+
+
+-- (6.iii) AC-3 constraint propagation
+
+ac3Check :: CSP -> [(Var,Var)] -> (CSP,Bool)
+ac3Check = undefined
+
+
+-- (6.iv) AC-3 algorithm
+
+ac3Recursion :: CSP -> Assignment -> (Maybe Assignment, Int)
+ac3Recursion = undefined
+
+
+ac3 :: CSP -> (Maybe Assignment,Int)
+ac3 csp = ac3Recursion csp []
+
+
+
+-- (6.v) AC-3 algorithm + MRV heuristic + LCV heuristic
+
+ac3MRV_LCVRecursion :: CSP -> Assignment -> (Maybe Assignment, Int)
+ac3MRV_LCVRecursion = undefined
+
+
+ac3MRV_LCV :: CSP -> (Maybe Assignment,Int)
+ac3MRV_LCV csp = ac3MRV_LCVRecursion csp []
+
+-------------------------------------------------

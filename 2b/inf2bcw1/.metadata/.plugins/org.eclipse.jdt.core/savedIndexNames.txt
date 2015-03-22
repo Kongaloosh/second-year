@@ -1,0 +1,2 @@
+INDEX VERSION 1.126+/afs/inf.ed.ac.uk/user/s12/s1210313/Desktop/inf2bcw1/.metadata/.plugins/org.eclipse.jdt.core
+1077835695.index

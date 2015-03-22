@@ -1,0 +1,13 @@
+===== Contents of this directory ====
+
+gtzan.mat
+	The data (in Matlab format)
+
+audio/
+	original music waveform data
+
+list_of_features.txt
+	breakdown of the 124 features
+   
+Tzanetakis_Cook_2002.pdf
+	a reference paper on the feature extraction and musical genre classification

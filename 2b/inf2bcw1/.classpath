@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="bin" path="src"/>
+	<classpathentry kind="var" path="JRE_LIB" rootpath="JRE_SRCROOT" sourcepath="JRE_SRC"/>
+	<classpathentry kind="con" path="/afs/inf.ed.ac.uk/user/s12/s1210313/Desktop/2b/inf2bcw1/lib"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s12/s1210313/Desktop/2b/inf2bcw1/lib/hamcrest-core.jar"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s12/s1210313/Desktop/2b/inf2bcw1/lib/jmathplot.jar"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s12/s1210313/Desktop/2b/inf2bcw1/lib/junit.jar"/>
+	<classpathentry kind="con" path="/afs/inf.ed.ac.uk/user/s12/s1210313/Desktop/2b/inf2bcw1/bin"/>
+	<classpathentry kind="con" path="/afs/inf.ed.ac.uk/user/s12/s1210313/Desktop/2b/inf2bcw1/bin/tests"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

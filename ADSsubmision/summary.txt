@@ -1,0 +1,6 @@
+                        Summary Table                         
+                        Solution          Naive        Student
+     Average Execution Time [탎]     206377.688     174763.813
+       Worst Execution Time [탎]     573209.000     470252.000
+Average Time / Points Ratio [탎]          0.002          1.351
+  Worst Time / Points Ratio [탎]          0.004          2.104

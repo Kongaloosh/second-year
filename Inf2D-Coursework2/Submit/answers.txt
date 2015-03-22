@@ -1,0 +1,123 @@
+-----------------------------------------------------------------------
+ ------ Informatics 2D - 2012/13 - Second Assignment - Planning ------
+-----------------------------------------------------------------------
+ 
+ Write here you matriculation number (only - your name is not needed)
+ Matriculation Number: s1210313
+
+1.1)
+Predicates:
+	- w: wheelchair
+	- nb: nursebot
+
+Adjacent Locations:
+(a1,a2)(a2,a3)(a2,a4)(a4,a5)(a5,a6),
+(a2,a1)(a3,a2)(a4,a2)(a5,a4)(a6,a5).
+
+1.2)
+     Axiom At:
+at(Agent, Location, result(Action, State)) <=
+ Action = move(Agent,_,Location) or
+ at(Agent,Location,State) and not(Action = move(Agent,_,_)).
+	
+	Axiom holding tray:
+holdingTray(result(Action, State)) <= 
+  Action = grabTray or
+  holdingTray(State)and
+  not(Action = disposeTray).
+	
+	The tray's location doesn't need to be explicitely defined. it is in one of three places. It is either disposed of, on it's loading port, or being held by the nursebot. Thus, we treat any location where the nurse is holding the tray to be the location of the tray, otherwise, it's not being held, and is in the loading port ready to be picked up.
+
+	This gives us enough detail to perform all the functions involving the tray.
+
+1.3)
+	a) axiom patient fed.
+patientFed(result(Action, State)) <=
+ Action = feedPatient;
+ patientFed(State).	
+	
+	b) axiom tray disposed
+trayDisposed(result(Action, State)) <=
+ Action = disposeTray or
+ trayDisposed(State).
+
+1.4)
+	at(w,a1,s0)and at(nb,a4,s0) and patientInBed(s0)
+
+1.5)
+	
+Move Agent
+
+possibility axiom:	
+at(agent,Loc1,State) and isAdjacent(Loc1,Loc2)and isClear(Loc2,State)=> poss(Move(Agent,Loc1,Loc2),State)
+	
+effect axiom:
+Result(Move(Agent,Loc1,Loc2),State)=> at(Agent,Loc2,Result(Move(Agent,Loc1,Loc2),State))
+
+1.6)
+
+possibility axiom:
+not(HoldingTray(State)) and at(nb,a1,State) =>poss(GrabTray,State)	
+
+effect axiom:
+Result(GrabTray,State)=> HoldingTray(Result(GrabTray,State))
+
+1.7)
+
+possibility axiom:
+HoldingTray(State) and at(nb,a4,State) => poss(Droptray, State)
+
+effect axiom:
+Result(GrabTray,State)=> not(HoldingTray(Result(GrabTray,State)))
+
+1.8)
+
+possibility axiom:
+not(patientFed(State)) and holdingTray(State) and at(nb,a3,State) and PatientInBed(State) => poss(FeedPatient, State)
+
+effect axiom:
+Result(FeedPatient, State) => patientFed(State)
+
+1.9)
+
+The frame problem:
+
+	While possibility and effect axioms capture how things change when an action is taken, they do not express the fact that everything which does not change stays the same.
+
+Successor-state axioms:
+
+	Successor-state axioms combine frame axioms--which describe the things which do not change through an action--and the effect axioms. For example
+
+	ActionIsPossible =>
+		(FluentIsTrueInResultState <=> Action'sEffectMadeItTrue or ItWasTrueBeforeAndDidNotChange)		
+
+STRIPS:
+	
+	A language for efficient planning, while maintaining the expressiveness of situational calculus. States are represented by conjunctions of function-free ground-literals. To deal with the frame problem it has an action description, a precondition, and an effect for each operator.
+
+
+Grab Tray 
+	Poss(Action,State) =>
+		( HoldingTray(Result(State,Action)) <=> 
+		not(Action = DropTray) and not(HoldingTray(State) and at(nb,a1,State)).
+Drop Tray
+	poss(Action,State) =>
+		(not(HoldingTray(Result(State,Action)) ) <=>
+		not(Action = GrabTray) and (HoldingTray(State) and at(nb,a4,State).
+
+FeedPatient
+	poss(Action,State) =>
+		( PatientFed(Result(State,Action))) <=>
+		not(PatientFed(State) and HoldingTray(State) and at(nb, a3, State) and patientInBed(State)
+
+Move Agent
+	poss(Move(Agent,Loc1,Loc2),State) =>
+		at(agent,Loc1,State),
+		isAdjacent(Loc1,Loc2),
+		isClear(Loc2,State).
+		
+
+1.11)
+
+--------------------
+Answers to parts 2 and 3 should be included in the appropriate domain-*.pl and instance-*.pl files.

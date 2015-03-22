@@ -1,0 +1,232 @@
+<?xml version="1.0"?>
+<project name="inf2bcw1" default="main" basedir=".">
+    <!-- Folder paths -->
+    <property name="src.dir" location="src" />
+    <property name="build.dir" location="bin" />
+    <property name="build.tests.dir" location="bin/tests" />
+    <property name="tests.dir" location="tests" />
+    <property name="tests.report.dir" location="tests/report" />
+    <property name="lib.dir" location="lib" />
+    <property name="docs.dir" location="docs" />
+    <property name="report.dir" location="report" />
+    <property name="report.log.file" location="report/log.txt" />
+    <property name="prepare.submit" location="prepare_submit" />
+    <property name="answer.dir" location="ADSanswer" />
+
+    <property name="data.dir" location="data" />
+    <property name="data.prefix" value="test_" />
+    <property name="data.ext" value="txt" />
+
+    <property name="tests.gen" value="2000" />
+    <property name="step.gen" value="10" />
+    <property name="first.gen" value="10" />
+    <property name="min.gen" value="-5000" />
+    <property name="max.gen" value="5000" />
+    
+    <property name="first.eval" value="99" />
+    <property name="step.eval" value="100" />
+    <property name="last.eval" value="1600" />
+
+    <property name="first.fasteval" value="0" />
+    <property name="step.fasteval" value="3" />
+    <property name="last.fasteval" value="50" />
+
+    <property name="solutions" value="all" />
+    <property name="interpolate" value="all" />
+
+    <!--Classpath container -->
+    <path id="build.classpath">
+        <pathelement location="${lib.dir}"/>
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+        <pathelement location="${build.dir}"/>
+        <pathelement location="${build.tests.dir}"/>
+    </path>
+    
+    <!-- Clean to prepare for compilation -->
+    <target name="clean">
+        <delete dir="${build.dir}" />
+        <delete dir="${docs.dir}" />
+        <delete dir="${tests.report.dir}" />
+    </target>
+
+    <!-- Flush all collected data and compiled files -->
+    <target name="flush" depends="clean">
+        <delete dir="${data.dir}" />
+        <delete dir="${report.dir}" />
+    	<delete dir="${answer.dir}" />
+    </target>
+
+  <!-- Creates the  build, docs and dist directory-->
+    <target name="makedir">
+        <mkdir dir="${build.dir}" />
+        <mkdir dir="${build.tests.dir}" />
+        <mkdir dir="${docs.dir}" />
+        <mkdir dir="${tests.report.dir}" />
+        <mkdir dir="${data.dir}" />
+        <mkdir dir="${report.dir}" />
+    </target>
+
+    <!-- Compile source code -->
+    <target name="compile" depends="clean, makedir">
+        <javac srcdir="${src.dir}" destdir="${build.dir}" 
+            classpathref="build.classpath" includeantruntime="true"></javac>
+    </target>
+
+    <!-- Compile JUnit tests -->
+        <target name="compile-tests" depends="compile">
+            <record action="start" name="${report.log.file}" loglevel="verbose" append="true" />
+            <javac srcdir="${tests.dir}" destdir="${build.tests.dir}" 
+                classpathref="build.classpath" includeantruntime="true"></javac>
+            <record action="stop" name="${report.log.file}" />
+        </target>
+
+    <!-- Perform JUnit Testing -->
+    <target name="test" depends="compile-tests">
+        <record action="start" name="${report.log.file}" loglevel="verbose" append="true" />
+        <junit printsummary="on" fork="true" haltonfailure="yes">
+            <classpath refid="build.classpath" />
+            <formatter type="xml" />
+            <batchtest todir="${tests.report.dir}">
+                <fileset dir="${build.tests.dir}" includes="**/Test*.class" />
+            </batchtest>
+        </junit>
+        <record action="stop" name="${report.log.file}" />
+    </target>
+
+    <!-- Perform JUnit Testing only of TestStudentSolution -->
+    <target name="test_student" depends="compile-tests">
+        <record action="start" name="${report.log.file}" loglevel="verbose" append="true" />
+        <junit printsummary="on" fork="true" haltonfailure="yes">
+            <classpath refid="build.classpath" />
+            <formatter type="xml" />
+            <batchtest todir="${tests.report.dir}">
+                <fileset dir="${build.tests.dir}" includes="**/TestStudentSolution.class" />
+            </batchtest>
+        </junit>
+        <record action="stop" name="${report.log.file}" />
+    </target>
+	
+    <!-- Create Javadoc -->
+    <target name="docs" depends="compile">
+        <javadoc packagenames="src" sourcepath="${src.dir}"
+            destdir="${docs.dir}">
+            <classpath refid="build.classpath" />
+            <fileset dir="${src.dir}">
+                <include name="**" />
+            </fileset>
+        </javadoc>
+    </target>
+
+    <!-- Generate test points -->
+    <target name="generate_tests" depends="compile">
+        <record action="start" name="${report.log.file}" loglevel="verbose" append="true" />
+        <java dir="." fork="true" classname="evaluation.GenerateTestData">
+            <classpath refid="build.classpath" />
+            <arg value="${data.dir}" />
+            <arg value="${data.prefix}" />
+            <arg value="${data.ext}" />
+            <arg value="${tests.gen}" />
+            <arg value="${step.gen}" />
+            <arg value="${first.gen}" />
+            <arg value="${min.gen}" />
+            <arg value="${max.gen}" />
+        </java>
+        <record action="stop" name="${report.log.file}" /> 
+    </target>
+
+    <!-- Evaluate your solution -->
+    <target name="eval" depends="compile">
+        <record action="start" name="${report.log.file}" loglevel="verbose" append="true" />
+        <java dir="." fork="true" classname="evaluation.Evaluate">
+            <classpath refid="build.classpath" />
+            <arg value="${data.dir}" />
+            <arg value="${data.prefix}" />
+            <arg value="${data.ext}" />
+            <arg value="${report.dir}" />
+            <arg value="${first.eval}" />
+            <arg value="${step.eval}" />
+            <arg value="${last.eval}" />
+            <arg value="${solutions}" />
+            <arg value="${interpolate}" />
+        </java>
+        <record action="stop" name="${report.log.file}" />
+    </target>
+
+    <!-- Show only Naive Solution -->
+    <target name="eval_naive" depends="compile">
+        <record action="start" name="${report.log.file}" loglevel="verbose" append="true" />
+        <java dir="." fork="true" classname="evaluation.Evaluate">
+            <classpath refid="build.classpath" />
+            <arg value="${data.dir}" />
+            <arg value="${data.prefix}" />
+            <arg value="${data.ext}" />
+            <arg value="${report.dir}" />
+            <arg value="99" />
+            <arg value="75" />
+            <arg value="1400" />
+            <arg value="Naive" />
+            <arg value="Naive" />
+        </java>
+        <record action="stop" name="${report.log.file}" />
+    </target>
+
+    <!-- Show only Student Solution -->
+    <target name="eval_student" depends="compile">
+        <record action="start" name="${report.log.file}" loglevel="verbose" append="true" />
+        <java dir="." fork="true" classname="evaluation.Evaluate">
+            <classpath refid="build.classpath" />
+            <arg value="${data.dir}" />
+            <arg value="${data.prefix}" />
+            <arg value="${data.ext}" />
+            <arg value="${report.dir}" />
+            <arg value="99" />
+            <arg value="100" />
+            <arg value="1800" />
+            <arg value="Student" />
+            <arg value="Student" />
+        </java>
+        <record action="stop" name="${report.log.file}" />
+    </target>
+
+    <!-- Compile and run SolutionStudent.java -->
+    <target name="student" depends="compile">
+        <record action="start" name="${report.log.file}" loglevel="verbose" append="true" />
+        <java dir="." fork="true" classname="closestPair.StudentSolution">
+            <classpath refid="build.classpath" />
+        </java>
+        <record action="stop" name="${report.log.file}" />
+    </target>
+    
+    <!-- Evaluate your solution -->
+    <target name="fasteval" depends="compile">
+        <record action="start" name="${report.log.file}" loglevel="verbose" append="true" />
+        <java dir="." fork="true" classname="evaluation.Evaluate">
+            <classpath>
+                <path refid="build.classpath" />
+            </classpath>
+            <arg value="${data.dir}" />
+            <arg value="${data.prefix}" />
+            <arg value="${data.ext}" />
+            <arg value="${report.dir}" />
+            <arg value="${first.fasteval}" />
+            <arg value="${step.fasteval}" />
+            <arg value="${last.fasteval}" />
+            <arg value="${solutions}" />
+            <arg value="${interpolate}" />
+        </java>
+        <record action="stop" name="${report.log.file}" />
+    </target>
+
+    <target name="prepare_submit">
+        <exec dir="." executable="/bin/bash" failonerror="true">
+            <arg value="prepare_submit" />
+        </exec>
+    </target>
+
+    <target name="main" depends="compile, test, eval, prepare_submit">
+        <description>Main target</description>
+    </target>
+
+</project>

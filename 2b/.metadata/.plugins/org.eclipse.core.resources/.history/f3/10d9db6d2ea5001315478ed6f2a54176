@@ -1,0 +1,296 @@
+/**
+ * @author S1210313
+ */
+
+package closestPair;
+
+import java.util.*;
+import evaluation.Tuple;
+
+/** The student's implementation of Shamos's Algorithm. */
+public class StudentSolution implements ISolution
+{
+    /* Reference to naive solution to be used in Shamos' Algorithm */
+    private ISolution naive = new NaiveSolution();
+
+    /**
+     * Find the square distance of the closest pairs in the [PointSet]. This
+     * method function is the preparation step for the recursive part of the
+     * algorithm defined in the method closestPairAux.
+     * 
+     * You should implement the following exceptions:
+     * @throws InsufficientNumberOfPointsException 
+     * @throws NullPointerException 
+     */
+    public int closestPair(PointSet p) 
+            throws NullPointerException, 
+                   InsufficientNumberOfPointsException
+    {
+    	
+    	// 1.
+    	if (p.size() <= 3) { // given the size is less than or equal to three, return the naive solution
+			NaiveSolution naiveSolution = new NaiveSolution();
+			return naiveSolution.closestPair(p);
+		}else {
+		// 2.
+			/*
+			 	Find a vertical line V such that it divides the input set into two disjoint subsets PL and PR of
+				size as equal as possible (i.e., of size 'n/2( and )n/2* respectively). Points to the left or on the
+				line belong to PL and points to the right or on the line belong to PR. (Points on the line can
+				belong to one or other of the sets, more details later.) No point belongs to both since the sets
+				are disjoint. See Figure 2.
+			 */
+			// sort so x1<x2, or if x1==x2, y1<=y2
+			PointSet sortedByX = p.clone();
+			sortedByX.sort();
+			PointSet sortedByY = p.clone();
+			sortedByY.sortByY();
+			
+			int w = 0;
+			int x = (int) Math.floor(sortedByX.size()/2);
+			int y = (int) Math.ceil(sortedByX.size()/2);
+			int z = sortedByX.size();
+			PointSet YL = new PointSet();
+			PointSet YR = new PointSet();
+			
+			//splitY(sortedByX.get(x), sortedByY, YL, YR); // From old code. Retained as a reference.
+			
+			Tuple<PointSet, PointSet> splitTuple = splitY(sortedByX.get(x), sortedByY);			
+			YL = splitTuple.first;
+			YR = splitTuple.second;
+			
+		// 3.
+			 /*
+			  	Recursively nd the distance δL of a closest pair of points inPL and the distance δR of a closest
+				pair in PR.
+			  */
+			
+			int dl = closestPairAux(sortedByX.subset(w,x+1), YL);
+			int dr = closestPairAux(sortedByX.subset(y,z+1), YR);
+		
+		// 4.
+			 /*
+			  	Let δ = min(δL, δR). The distance of a pair of closest points in the input set P is either that of
+				the points found in the recursive step (i.e., δ) or consists of the distance between a point in PL
+				and a point in PR.
+			  */
+			int d;
+			int dtimes2;
+			if (dl<dr){
+				d = dl;
+				dtimes2 = 2*dl;
+			}else{
+				d = dr;
+				dtimes2 = 2*dr; // have to worry about it being squared?
+			}
+			
+			/*
+				(a) The only candidate points one from PL and one from PR must be in a vertical strip consisting
+				of a line at distance δ to the left of the line V and a line at distance δ to the right of V .
+			
+				(b) Let YV be an array of the points within the strip sorted by non-decreasing y coordinate
+				(i.e., if i ≤ j then YV [i].y ≤ YV [j].y).
+			*/
+			
+			// dividing line defined by the x-coordinate of the point X[Ceiling((R+S+1)/2)-1]
+			// where r is W and s is Z for any recursive step.
+			
+			ArrayList<Point> yV = new ArrayList<Point>(); // Yv: the points within the 2d strip.
+			int lineIndex = (int) Math.ceil((sortedByX.size()+1)/2); // find the point for the centre line
+			int verticalLineX = sortedByX.get(lineIndex).getX(); // find the x-coord of the point 
+			for (int i = 0; i < sortedByY.size(); i++) { // must iterate over the sorted points
+				Point currentPoint = sortedByX.get(i); //
+				if (currentPoint.getX()-verticalLineX <= dtimes2) {
+					yV.add(currentPoint);
+				}
+			}
+			
+			/*
+				(c) Starting with the first point in YV and stepping through all except the last, check the
+					distance of this point with the next 7 points (or any that are left if there are not as many
+					as 7). If a pair is found with distance strictly less than δ then assign this distance to δ.
+			  */
+		
+			for (int i = 0; i < yV.size()-1; i++) { // does not check last point
+				for (int j = i+1; j <= i+7; j++) {
+					if (j <= yV.size()) {
+						Point currentIPoint = yV.get(i);
+						Point currentJPoint = yV.get(j);
+						int xDist = (currentIPoint.getX() - currentJPoint.getX());
+						int yDist = (currentIPoint.getY() - currentJPoint.getY());
+						int distanceSquared = (int) (Math.pow(xDist, 2) + Math.pow(yDist, 2));
+						
+						if (distanceSquared < d) {
+							d = distanceSquared;
+						}
+					}
+				}
+			}
+		// 5.
+			return d;
+		}
+    }
+    
+    /** Recursive part of the Shamos Algorithm 
+     * 
+     * You should implement the following exceptions:
+     * @throws InsufficientNumberOfPointsException
+     * @throws NullPointerException
+     */
+    
+    private int closestPairAux(PointSet X, PointSet Y) throws InsufficientNumberOfPointsException, NullPointerException {
+                   	
+    	// 1.
+    	if (X.size() <= 3) { // given the size is less than or equal to three, return the naive solution
+    		NaiveSolution naiveSolution = new NaiveSolution();
+    		return naiveSolution.closestPair(X);
+    	}else {
+    	// 2.
+
+    		PointSet sortedByX = X.clone();
+    		sortedByX.sort();
+    		PointSet sortedByY = Y.clone();
+    		sortedByY.sortByY();
+
+    		int w = 0;
+    		int x = (int) Math.floor(sortedByX.size()/2);
+    		int y = (int) Math.ceil(sortedByX.size()/2);
+    		int z = sortedByX.size();
+    		PointSet YL = new PointSet();
+    		PointSet YR = new PointSet();
+
+    		//splitY(sortedByX.get(x), sortedByY, YL, YR); // From old code. Retained as a reference.
+
+    		Tuple<PointSet, PointSet> splitTuple = splitY(sortedByX.get(x), sortedByY);			
+    		YL = splitTuple.first;
+    		YR = splitTuple.second;
+               			
+    		// 3.
+
+    		int dl = closestPairAux(sortedByX.subset(w,x+1), YL);
+    		int dr = closestPairAux(sortedByX.subset(y,z+1), YR);
+               		
+    		// 4.
+    		int d;
+    		int dtimes2;
+    		if (dl<dr){
+    			d = dl;
+    			dtimes2 = 2*dl;
+    		}else{
+    			d = dr;
+    			dtimes2 = 2*dr; // have to worry about it being squared?
+    		}
+
+    		// dividing line defined by the x-coordinate of the point X[Ceiling((R+S+1)/2)-1]
+    		// where r is W and s is Z for any recursive step.
+
+    		ArrayList<Point> yV = new ArrayList<Point>(); // Yv: the points within the 2d strip.
+    		int lineIndex = (int) Math.ceil((sortedByX.size()+1)/2); // find the point for the centre line
+    		int verticalLineX = sortedByX.get(lineIndex).getX(); // find the x-coord of the point 
+    		for (int i = 0; i < sortedByY.size(); i++) { // must iterate over the sorted points
+    			Point currentPoint = sortedByX.get(i); //
+    			if (currentPoint.getX()-verticalLineX <= dtimes2) {
+    				yV.add(currentPoint);
+    			}
+    		}
+
+    		for (int i = 0; i < yV.size()-1; i++) { // does not check last point
+    			for (int j = i+1; j <= i+7; j++) {
+    				if (j <= yV.size()) {
+    					Point currentIPoint = yV.get(i);
+    					Point currentJPoint = yV.get(j);
+    					int xDist = (currentIPoint.getX() - currentJPoint.getX());
+    					int yDist = (currentIPoint.getY() - currentJPoint.getY());
+    					int distanceSquared = (int) (Math.pow(xDist, 2) + Math.pow(yDist, 2));
+
+    					if (distanceSquared < d) {
+    						d = distanceSquared;
+    					}
+    				}
+    			}
+    		}
+    		// 5.
+    		return d;
+    	}
+    }
+    
+    /* Implement your splitY method here as outlined in the handout fig. 3 
+     * Note that you must pass references to initialised PointSet YL, YR. */
+    
+    private Tuple<PointSet, PointSet> splitY(Point testPoint, PointSet Y) {
+        int N = Y.size();
+        int left = 0;
+        int right = 0;
+        Point[] YL = new Point[(N + 1)/ 2];
+        Point[] YR = new Point[N / 2];
+        
+        try
+        {
+            for (int i = 0; i < Y.size(); i++)
+            {
+                Point y = Y.get(i);
+                if (y.compareTo(testPoint) <= 0)
+                { YL[left++] = y; }
+                else
+                { YR[right++] = y; }
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Expected testPoint to split Y into two halves"
+                    + " of size " + (N + 1)/ 2 + " and " + N / 2
+                    + " respectively but did not.");
+            e.printStackTrace();
+        }
+        
+        PointSet YLPS = new PointSet(YL, 0, YL.length, true);
+        PointSet YRPS = new PointSet(YR, 0, YR.length, true);
+        
+        return new Tuple<PointSet, PointSet>(YLPS, YRPS);
+    }
+    
+    /*
+    private void splitY(Point testPoint, PointSet Y, PointSet YL, PointSet YR) {
+    	/*
+    	 * We're being marked on style, so I'll just add a few comments regarding things I would change if it were
+    	 * within the scope of changes we're allowed to make. The arguments contain variables whose names are capitalized;
+    	 * I'd switch that to camel-case. Alongside this, the arguments passed into the method don't match those specified
+    	 * in figure 3 'splitY'
+    	 * 
+    	 * I'd also change the names of the arguments such that they match figure 3
+    	 
+    	ArrayList<Point> pL = new ArrayList<>();
+    	ArrayList<Point> pR = new ArrayList<>();
+    	
+    	int l = 0;
+    	int r = 0;
+    	
+    	for (int i = 0; i < Y.size(); i++) {
+			Point currentPoint = Y.get(i);  // called .get() too many times, did made this for efficiency.
+			if (currentPoint.getX()<testPoint.getX()) { // if this is still on the left-hand side of the boundary
+				pL.add(currentPoint);					// add the point to the left-hand set
+				l++;
+			}else {
+				pR.add(currentPoint);					// otherwise add the point to the right-hand set
+				r++;
+			}
+		}
+    	YL = new PointSet(pL.toArray(new Point[l]));// trims any excess array spots
+    	YR = new PointSet(pR.toArray(new Point[r]));
+    }
+    */
+    
+    /** The name of the solution */
+    public String toString()
+    { return "Student"; }
+
+    /** Theoretical model of the runtime of the algorithm */
+    public String getEquation()
+    { return "n * lg(n)"; }
+    
+    /** You can use this method to test your solution */
+    public static void main(String[] args)
+    {
+        // You initialise student solution like below
+        // StudentSolution student = new StudentSolution();
+    }
+
+}
